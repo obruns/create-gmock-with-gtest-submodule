@@ -88,11 +88,6 @@ git update-ref -d refs/remotes/origin/trunk
 # this one seems to be irrelevant - the Google engineers didn't keep it
 git update-ref -d refs/remotes/origin/unsupported-vc6-port
 
-# drop tags holding the Git<>Subversion relationship
-# TODO later
-#git for-each-ref --format='%(refname)' -- 'refs/tags/svn-revisions/*' | \
-#    xargs -n 1 git update-ref -d
-
 # purge the 'git-svn-id:' line from each commit message
 # this is taken verbatim from man git-filter-branch
 git filter-branch --force --msg-filter '
@@ -206,6 +201,10 @@ git filter-branch --force --index-filter '
 # Ignore .pyc files -- svn:ignore is a property, i.e. nothing that git sees
 # Deletes the empty scons directory. -- git tracks content not files (empty dirs are irrelevant)
 # Pull in gtest 687 -- this is a change to the wiki/ "branch" which is not part of the clone
+
+cd ../gtest
+git for-each-ref --format='%(refname)' -- 'refs/tags/svn-revisions/*' | \
+    xargs -n 1 git update-ref -d
 
 # TODO ...
 

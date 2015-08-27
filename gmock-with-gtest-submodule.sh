@@ -266,5 +266,11 @@ done
 git checkout master
 git branch -D test
 
+# remove git-svn related stuff from .git/
+rm -Rf .git/svn
+# remove sections from .git/config that are related to Subversion
+git config --local --remove-section "svn"
+git config --local --remove-section "svn-remote.svn"
+
 # WARNING: all work will be lost
 # sudo umount /tmp/clones

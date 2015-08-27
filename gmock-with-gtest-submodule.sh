@@ -210,12 +210,23 @@ git filter-branch --force --index-filter '
     cd ${OLD_CWD}
 ' --tag-name-filter cat -- --all
 
-# TODO git filter-branch --force --prune-empty -- --all
+# purge the 'git-svn-id:' line from each commit message
+# this is taken verbatim from man git-filter-branch
+git filter-branch --force --msg-filter '
+       sed -e "/^git-svn-id:/d"
+' --tag-name-filter cat -- --all
+
 # you can easily run e.g. vimdiff on the history before and after --prune-empty
 # there are some differences that can be easily explained via the commit messages
 # Ignore .pyc files -- svn:ignore is a property, i.e. nothing that git sees
 # Deletes the empty scons directory. -- git tracks content not files (empty dirs are irrelevant)
 # Pull in gtest 687 -- this is a change to the wiki/ "branch" which is not part of the clone
+git filter-branch --force --prune-empty \
+    --tag-name-filter cat -- --all
+
+# drop tags holding the Git<>Subversion relationship
+git for-each-ref --format='%(refname)' -- 'refs/tags/svn-revisions/*' | \
+    xargs -n 1 git update-ref -d
 
 cd ../gtest
 git for-each-ref --format='%(refname)' -- 'refs/tags/svn-revisions/*' | \

@@ -272,5 +272,9 @@ rm -Rf .git/svn
 git config --local --remove-section "svn"
 git config --local --remove-section "svn-remote.svn"
 
+# TODO this would be the official (GitHub?) repository
+git remote add origin git@github.com:obruns/gmock.git
+git push --tags origin master:master
+
 # WARNING: all work will be lost
 # sudo umount /tmp/clones

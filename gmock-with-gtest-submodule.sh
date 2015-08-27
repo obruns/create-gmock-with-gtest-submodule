@@ -105,9 +105,12 @@ git config --local --remove-section "svn-remote.svn"
 
 # TODO this would be the official (GitHub?) repository
 git remote add origin git@github.com:obruns/gtest.git
-git push --follow-tags origin master:master
-# TODO this will push our helper tags 'svn-revisions/*'
-#      this is undesirable but we are free to delete them later
+git push origin master:master
+git for-each-ref --format='%(refname)' -- 'refs/tags/v*' | \
+while read tag
+do
+    git push origin ${tag}
+done
 
 # BEGIN gmock cleanup work
 cd ../gmock

@@ -164,6 +164,18 @@ do
         git tag -a "v${GIT_TAG}" ${IMPORTED_TAG} -m "v${GIT_TAG}"
 done
 
+
+# This will yield several errors of the following form
+#   fatal: ambiguous argument 'svn-revisions/660': unknown revision or path not in the working tree.
+# That is expected, those revisions are related to the wiki/ "branch"
+# which has not been cloned. Revisions that are affected by this:
+#
+#   r325
+#   r660
+#   r687
+#
+# Currently, the previous reference is kept.
+# TODO We need to walk backwards (325 - 1) and see if we could use that one.
 git filter-branch --force --index-filter '
     OLD_CWD=`pwd`
     cd ../../

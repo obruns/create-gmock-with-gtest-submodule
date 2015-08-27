@@ -112,6 +112,8 @@ do
     git push origin ${tag}
 done
 
+# TODO cmake ../ -Dgtest_build_tests:BOOL=ON -G Ninja
+
 # BEGIN gmock cleanup work
 cd ../gmock
 
@@ -232,7 +234,37 @@ cd ../gtest
 git for-each-ref --format='%(refname)' -- 'refs/tags/svn-revisions/*' | \
     xargs -n 1 git update-ref -d
 
-# TODO ...
+cd ../gmock
+
+git checkout -b test
+# TODO fall back to ./configure for v1.5.0 and lower
+git for-each-ref --format='%(refname)' -- 'refs/tags/v*' | \
+while read tag
+do
+    echo "testing ${tag}"
+    git reset --hard ${tag}
+    git submodule update
+    rm -Rf build
+    (
+        ERRORFILE="../../gmock-tests.${tag##refs/tags/}"
+        mkdir build && cd build
+        cmake ../ -Dgmock_build_tests:BOOL=ON -G Ninja || echo "cmake failed" >> ${ERRORFILE}
+        time ninja || echo "ninja failed" >> ${ERRORFILE}
+        for test in gmock*test
+        do
+            echo -n ${test} >> ${ERRORFILE}
+            ./${test}
+            if [[ $? -ne 0 ]]
+            then
+                echo " FAILED" >> ${ERRORFILE}
+            else
+                echo " OK" >> ${ERRORFILE}
+            fi
+        done
+    )
+done
+git checkout master
+git branch -D test
 
 # WARNING: all work will be lost
 # sudo umount /tmp/clones
